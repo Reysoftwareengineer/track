@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirect...</title>
+  <script>
+    // Ambil URL tujuan dari parameter query string
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetUrl = urlParams.get('to');
+    
+    // Redirect ke TikTok atau link yang disamarkan
+    if (targetUrl) {
+      console.log("Redirecting to:", targetUrl);
+      
+      // Setelah beberapa detik, lakukan redirect
+      setTimeout(function() {
+        window.location.href = decodeURIComponent(targetUrl);
+      }, 2000);  // Delay 2 detik sebelum redirect
+    } else {
+      document.body.innerHTML = '<h1>URL tidak ditemukan.</h1>';
+    }
+  </script>
+</head>
+<body>
+  <h1>Loading...</h1>
+  <p>Anda sedang diarahkan ke TikTok...</p>
+</body>
+</html>
