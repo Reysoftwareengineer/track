@@ -1,35 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Lokasi Target</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <style>
-    #map { height: 100vh; margin: 0; padding: 0; }
-  </style>
-</head>
-<body>
-  <div id="map"></div>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const lat = parseFloat(params.get('lat'));
-    const lon = parseFloat(params.get('lon'));
-    const acc = parseFloat(params.get('acc'));
+  <head>
+    <meta charset="UTF-8" />
+    <title>iclik</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+      #map {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const lat = parseFloat(params.get("lat"));
+      const lon = parseFloat(params.get("lon"));
+      const acc = parseFloat(params.get("acc"));
 
-    if (lat && lon) {
-      const map = L.map('map').setView([lat, lon], 16);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
+      if (lat && lon) {
+        const map = L.map("map").setView([lat, lon], 16);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors",
+        }).addTo(map);
 
-      L.marker([lat, lon])
-        .addTo(map)
-        .bindPopup(`📍 Lokasi Target<br>Lat: ${lat}<br>Lon: ${lon}<br>Akurasi: ±${acc} meter`)
-        .openPopup();
-    } else {
-      alert("Data lokasi tidak ditemukan.");
-    }
-  </script>
-</body>
+        L.marker([lat, lon])
+          .addTo(map)
+          .bindPopup(
+            `📍 Lokasi Target<br>Lat: ${lat}<br>Lon: ${lon}<br>Akurasi: ±${acc} meter`
+          )
+          .openPopup();
+      } else {
+        alert("Data lokasi tidak ditemukan.");
+      }
+    </script>
+  </body>
 </html>
